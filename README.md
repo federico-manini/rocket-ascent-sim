@@ -4,12 +4,13 @@ Rocket ascent trajectory simulator in Python, with an ISA atmosphere model and R
 
 ## Status
 
-Work in progress. The ISA atmosphere model is complete and tested. The trajectory integrator and the rocket model are under development.
+Work in progress. The ISA atmosphere model and an Euler integrator are complete and tested. The RK4 integrator and the rocket model are under development.
 
 ## Features
 
 - ISA standard atmosphere: temperature, pressure and density as a function of altitude (exact up to 20 km).
-- Automated tests with `pytest`, including a continuity check at the tropopause.
+- Explicit Euler integrator for systems of ODEs with vector states.
+- Automated tests with `pytest`, including a continuity check at the tropopause and a convergence check of the integrator.
 
 ## Installation
 
@@ -36,6 +37,22 @@ T, p, rho = isa(5000)   # altitude in metres
 # at 5000 m: T = 255.65 K, p ~ 54020 Pa, rho ~ 0.736 kg/m^3
 ```
 
+Numerical integration (free fall, state = [height, velocity]):
+
+```python
+import numpy as np
+from integrator import euler_integrator
+
+def free_fall(t, y):
+    h, v = y
+    return np.array([v, -9.81])
+
+t, y = euler_integrator(free_fall, 0.0, 1.0, [100.0, 0.0], 0.001)
+print(y[-1])   # ~ [95.0999, -9.81]  (exact height: 95.095 m)
+```
+
+`euler_integrator(f, t0, tf, y0, dt)` returns the time grid `t` and an array `y` with one row per time step.
+
 Run the tests:
 
 ```bash
@@ -47,10 +64,12 @@ pytest
 ```
 rocket-ascent-sim/
 ├── src/
-│   └── atmosphere.py       # ISA atmosphere model
+│   ├── atmosphere.py            # ISA atmosphere model
+│   └── integrator.py            # Euler integrator
 ├── tests/
-│   └── test_atmosphere.py  # unit tests for the atmosphere
-├── docs/                   # (planned) plots and reports
+│   ├── test_atmosphere.py       # unit tests for the atmosphere
+│   └── test_euler_integrator.py # unit tests for the integrator
+├── docs/                        # (planned) plots and reports
 ├── pytest.ini
 ├── requirements.txt
 └── README.md
@@ -63,11 +82,13 @@ rocket-ascent-sim/
 - Above 20 km the model is an isothermal extrapolation, not the real ISA: the pressure is underestimated by roughly 2-3% at 25 km and 5-6% at 30 km compared with the standard atmosphere.
 - Dry air with R = 287.05 J/(kg K) and constant g0 = 9.80665 m/s^2 in the barometric formula.
 - Geopotential and geometric altitude are not distinguished.
+- The Euler method is first-order accurate: the error decreases proportionally to the time step.
 
 ## Roadmap
 
 - [x] ISA atmosphere (0-20 km) with tests
-- [ ] Numerical integrator (Euler, then RK4), validated on free fall
+- [x] Euler integrator with test
+- [ ] RK4 integrator, compared with Euler on a problem with a known solution
 - [ ] 1D ascent with thrust, drag and variable mass
 - [ ] Validation against the analytical (Tsiolkovsky) solution
 - [ ] Full ISA layers above 20 km
