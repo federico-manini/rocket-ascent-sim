@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
-from integrator import euler_integrator
-from integrator import rk4_integrator
+from integrator import euler_integrator, rk4_integrator
+
 
 
 def test_euler_exponential_growth():
@@ -24,14 +24,16 @@ def test_rk4_is_more_accurate_than_euler():
     assert error_rk4 < error_euler
 
 
-def test_rk4_with_small_dt():
+def test_rk4_error_decreases_with_smaller_dt():
     t, y_small_dt = rk4_integrator(lambda t, y: y, 0.0, 1.0, [1.0], 0.05)
     t, y_large_dt = rk4_integrator(lambda t, y: y, 0.0, 1.0, [1.0], 0.1)
 
-    error_small_dt = abs(y_small_dt[-1, 0] -np.e)
-    error_large_dt = abs(y_large_dt[-1, 0] -np.e)
+    error_small_dt = abs(y_small_dt[-1, 0] - np.e)
+    error_large_dt = abs(y_large_dt[-1, 0] - np.e)
 
     assert error_small_dt < error_large_dt
+    assert error_large_dt / error_small_dt == pytest.approx(16, rel=0.1)  # RK4 is 4th order, so error should decrease by a factor of ~16 when dt is halved
+
 
 
 
