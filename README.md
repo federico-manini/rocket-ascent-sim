@@ -4,13 +4,14 @@ Rocket ascent trajectory simulator in Python, with an ISA atmosphere model and R
 
 ## Status
 
-Work in progress. The ISA atmosphere model and an Euler integrator are complete and tested. The RK4 integrator and the rocket model are under development.
+Work in progress. The ISA atmosphere model, Euler integrator and RK4 integrator are complete and tested. The rocket model is under development.
 
 ## Features
 
 - ISA standard atmosphere: temperature, pressure and density as a function of altitude (exact up to 20 km).
 - Explicit Euler integrator for systems of ODEs with vector states.
-- Automated tests with `pytest`, including a continuity check at the tropopause and a convergence check of the integrator.
+- RK4 integrator for systems of ODEs with vector states.
+- Automated tests with `pytest` for the atmospheric model and for the integrators, including a continuity check at the tropopause and convergence and accuracy checks of the integrators.
 
 ## Installation
 
@@ -65,10 +66,10 @@ pytest
 rocket-ascent-sim/
 ├── src/
 │   ├── atmosphere.py            # ISA atmosphere model
-│   └── integrator.py            # Euler integrator
+│   └── integrator.py            # Euler integrator, RK4 integrator
 ├── tests/
-│   ├── test_atmosphere.py       # unit tests for the atmosphere
-│   └── test_euler_integrator.py # unit tests for the integrator
+│   ├── test_atmosphere.py       # tests for the atmosphere
+│   └── test_integrator.py       # tests for the integrators
 ├── docs/                        # (planned) plots and reports
 ├── pytest.ini
 ├── requirements.txt
@@ -83,12 +84,13 @@ rocket-ascent-sim/
 - Dry air with R = 287.05 J/(kg K) and constant g0 = 9.80665 m/s^2 in the barometric formula.
 - Geopotential and geometric altitude are not distinguished.
 - The Euler method is first-order accurate: the error decreases proportionally to the time step.
+- The RK4 method is fourth-order accurate: the error decreases with the fourth-power of the time step (verified in test_integrator.py)
 
 ## Roadmap
 
 - [x] ISA atmosphere (0-20 km) with tests
 - [x] Euler integrator with test
-- [ ] RK4 integrator, compared with Euler on a problem with a known solution
+- [x] RK4 integrator, compared with Euler on a problem with a known solution
 - [ ] 1D ascent with thrust, drag and variable mass
 - [ ] Validation against the analytical (Tsiolkovsky) solution
 - [ ] Full ISA layers above 20 km
